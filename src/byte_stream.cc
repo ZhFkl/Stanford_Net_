@@ -1,8 +1,7 @@
 #include "byte_stream.hh"
 using namespace std;
 
-ByteStream::ByteStream( uint64_t capacity ) : capacity_( capacity ), buffer( capacity, '\0' )
-{
+ByteStream::ByteStream( uint64_t capacity ) : capacity_( capacity ), buffer( capacity, '\0' ){
   buffer.clear();
 }
 
@@ -18,13 +17,12 @@ void Writer::push( string data )
     return;
   }
 
-  uint64_t space_left = this->capacity_ - this->pushed;
+  uint64_t space_left = this->available_capacity();
   if ( data.size() > space_left ) {
     data = data.substr( 0, space_left );
   }
   this->buffer.append( data );
   this->pushed += data.size();
-  this->pushed_total += data.size();
 }
 
 void Writer::close()
@@ -36,31 +34,30 @@ void Writer::close()
 uint64_t Writer::available_capacity() const
 {
 
-  return this->capacity_ - this->pushed;
+  return this->capacity_ - buffer.size();
 }
 
 uint64_t Writer::bytes_pushed() const
 {
   // Your code here.
-  return this->pushed_total;
+  return this->pushed;
 }
-
 bool Reader::is_finished() const
 {
-  return this->is_close && ( this->pushed == 0 );
+  return this->is_close && ( buffer.size() == 0 );
 }
 
 uint64_t Reader::bytes_popped() const
 {
   // Your code here.
-  return this->poped_total;
+  return this->poped;
 }
 
 string_view Reader::peek() const
 {
   if ( this->is_finished() )
     return {};
-  return std::string_view( this->buffer.data(), this->pushed );
+  return std::string_view( this->buffer.data(), this->bytes_buffered() );
 }
 
 void Reader::pop( uint64_t len )
@@ -69,15 +66,14 @@ void Reader::pop( uint64_t len )
   if ( this->is_finished() ) {
     return;
   }
-  if ( len > this->pushed ) {
-    len = this->pushed;
+  if ( len > this->bytes_buffered() ) {
+    len = this->bytes_buffered();
   }
   this->buffer.erase( 0, len );
-  this->pushed -= len;
-  this->poped_total += len;
+  this->poped += len;
 }
 
 uint64_t Reader::bytes_buffered() const
 {
-  return this->pushed;
+  return buffer.size();
 }
