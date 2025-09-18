@@ -20,6 +20,11 @@ alternatives -- perhaps in terms of simplicity/complexity, risk of
 bugs, asymptotic performance, empirical performance, required
 implementation time and difficulty, and other factors. Include any
 measurements if applicable.]
+reassembler is a continer below the bytestream ,which need to sort the information and put it 
+to the buffer_ of the bytestream in sequence, a bytestream is more like a pipe who have reader and writer 
+to read from the pipe and writer like the reassembler to write the data into it,then we can transition the
+data to the upper api in sequence.
+
 
 Implementation Challenges:
 []
